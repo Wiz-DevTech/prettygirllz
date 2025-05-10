@@ -33,12 +33,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/health", "/api/avatars/preview", "/debug-public").permitAll()
                         .anyRequest().permitAll() // Temporarily allow all requests
-                );
+                )
+                .csrf().and(); // Re-enable CSRF protection
 
         // Apply JWT filter if needed
         // http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
