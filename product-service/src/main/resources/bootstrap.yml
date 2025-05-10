@@ -1,0 +1,16 @@
+# Bootstrap configuration
+# Used for configuration server settings
+
+spring:
+  application:
+    name: product-service
+# Bootstrap configuration
+# Used for configuration server settings
+
+
+  # Optional cloud config settings (if using Spring Cloud Config)
+  cloud:
+    config:
+      enabled: false
+      # uri: http://config-server:8888
+      # fail-fast: true

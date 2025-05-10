@@ -1,0 +1,9 @@
+# .gitlab-ci.yml example
+test:
+  stage: test
+  services:
+    - name: postgres:15
+      alias: postgres-test
+      variables:
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: logistics_test
