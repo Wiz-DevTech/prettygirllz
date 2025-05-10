@@ -1,0 +1,74 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/identityaccess
+    username: postgres
+    password: YourNewSecurePassword123!
+    driver-class-name: org.postgresql.Driver
+
+  # Allow bean definition overriding to resolve conflicts
+  main:
+    allow-bean-definition-overriding: true
+
+  sql:
+    init:
+      mode: never
+      platform: postgresql
+      schema-locations: classpath:schema.sql
+
+  flyway:
+    enabled: true
+    create-schemas: true
+    schemas: identityaccess
+    locations:
+      - classpath:db/migration  # Standard Flyway location
+      - classpath:com/wizdevtech/identityaccess/repository/db/migration  # Your custom location
+    baseline-on-migrate: true
+    validate-on-migrate: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update  # Changed to validate to avoid conflicts with Flyway
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+server:
+  port: ${HTTP_PORT:8080}
+
+grpc:
+  port: ${GRPC_PORT:9090}
+
+jwt:
+  secret: ${JWT_SECRET:your_secure_jwt_secret_key_at_least_32_chars}
+  expiration: ${JWT_EXPIRATION:3600000}
+  issuer: identity-access
+
+encryption:
+  key: "QR6MuXQaiWQk2EWsBDMUv9SaBAzP8Oe6bj/V+WVD9Ic="
+
+logging:
+  level:
+    org.springframework.security: INFO
+    com.wizdevtech: DEBUG
+    org.springframework.data: DEBUG  # Add debug logging for Spring Data repositories
+
+thymeleaf:
+  prefix: classpath:/templates/
+  suffix: .html
+  mode: HTML
+  encoding: UTF-8
+  servlet:
+    content-type: text/html
+  cache: false  # Set to true in production
+
+# Avatar configuration
+avatar:
+  storage:
+    path: file:./avatars/
+  static:
+    path: /static/avatars/
+  default:
+    type: CARTOON
+    engine: UNITY

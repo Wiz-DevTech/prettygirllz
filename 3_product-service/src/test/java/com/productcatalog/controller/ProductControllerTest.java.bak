@@ -1,0 +1,126 @@
+package com.productcatalog.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.productcatalog.model.Product;
+import com.productcatalog.service.ProductService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
+import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+/**
+ * # Unit tests for ProductController
+ */
+@WebMvcTest(ProductController.class)
+public class ProductControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private ProductService productService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Test
+    public void testGetAllProducts() throws Exception {
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setName("Test Product 1");
+        product1.setCategory("CANDY");
+
+        Product product2 = new Product();
+        product2.setId(2L);
+        product2.setName("Test Product 2");
+        product2.setCategory("FASHION");
+
+        when(productService.getAllProducts()).thenReturn(Arrays.asList(product1, product2));
+
+        mockMvc.perform(get("/products")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Test Product 1"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].name").value("Test Product 2"));
+    }
+
+    @Test
+    public void testGetProductById() throws Exception {
+        Product product = new Product();
+        product.setId(1L);
+        product.setName("Test Product");
+        product.setCategory("CANDY");
+
+        when(productService.getProductById(1L)).thenReturn(Optional.of(product));
+
+        mockMvc.perform(get("/products/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Test Product"))
+                .andExpect(jsonPath("$.category").value("CANDY"));
+    }
+
+    @Test
+    public void testCreateProduct() throws Exception {
+        Product product = new Product();
+        product.setName("New Product");
+        product.setCategory("CANDY");
+
+        Product savedProduct = new Product();
+        savedProduct.setId(1L);
+        savedProduct.setName("New Product");
+        savedProduct.setCategory("CANDY");
+
+        when(productService.createProduct(any(Product.class))).thenReturn(savedProduct);
+
+        mockMvc.perform(post("/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(product)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("New Product"))
+                .andExpect(jsonPath("$.category").value("CANDY"));
+    }
+
+    @Test
+    public void testUpdateProduct() throws Exception {
+        Product product = new Product();
+        product.setName("Updated Product");
+        product.setCategory("CANDY");
+
+        Product updatedProduct = new Product();
+        updatedProduct.setId(1L);
+        updatedProduct.setName("Updated Product");
+        updatedProduct.setCategory("CANDY");
+
+        when(productService.updateProduct(any(Product.class))).thenReturn(updatedProduct);
+
+        mockMvc.perform(put("/products/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(product)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Updated Product"))
+                .andExpect(jsonPath("$.category").value("CANDY"));
+    }
+
+    @Test
+    public void testDeleteProduct() throws Exception {
+        mockMvc.perform(delete("/products/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
+}
